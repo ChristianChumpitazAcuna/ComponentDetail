@@ -6,6 +6,7 @@ import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@ToString
 public class ComponentDetail {
     @Schema(description = "Unique Component detail identifier")
     private String id;
@@ -28,7 +30,7 @@ public class ComponentDetail {
     private ComponentProperties componentAttributes;
 
     @Schema(description = "Component detail heritage code")
-    private int heritageCode;
+    private String heritageCode;
 
     @Schema(description = "Component detail year heritage code")
     private Year yearHeritageCode;
@@ -49,7 +51,7 @@ public class ComponentDetail {
     private List<String> imageUri;
 
     @Schema(description = "Component detail status: (REGULAR, RISK, BAD)")
-    private StatusType componentStatus;
+    private StatusType statusType;
 
     @Schema(description = "Component detail creation time")
     private LocalDateTime creationTime;

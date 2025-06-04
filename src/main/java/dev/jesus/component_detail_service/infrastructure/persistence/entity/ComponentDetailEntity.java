@@ -1,6 +1,8 @@
 package dev.jesus.component_detail_service.infrastructure.persistence.entity;
 
+import dev.jesus.component_detail_service.domain.in.enums.ComponentType;
 import dev.jesus.component_detail_service.domain.in.enums.StatusType;
+import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,15 +19,17 @@ import java.util.List;
 public class ComponentDetailEntity {
     @Id
     private String id;
-    private int heritageCode;
+    private ComponentType componentType;
+    private String componentId;
+    private ComponentProperties componentAttributes;
+    private String heritageCode;
     private Year yearHeritageCode;
     private Year year;
     private String serialNumber;
     private String internalCode;
-    private String componentId;
     private String observation;
     private List<String> imageUri;
-    private StatusType componentStatus;
+    private StatusType statusType;
     private LocalDateTime creationTime;
     private LocalDateTime updateTime;
     private Boolean status;

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Year;
 import java.util.List;
@@ -21,10 +22,9 @@ public class ComponentDetailRequestDTO {
     @Schema(description = "Component detail component id", example = "123")
     private String componentId;
 
-    @Min(value = 12, message = "Minimum 12 numeric digits are required")
-    @Max(value = 12, message = "Maximum 12 numeric digits are required")
+    @Pattern(regexp = "^[0-9]{12}$", message = "12 numerics digits are required")
     @Schema(description = "Component detail heritage code", example = "740012123344")
-    private int heritageCode;
+    private String heritageCode;
 
     @Schema(description = "Component detail year heritage code", example = "2022")
     private Year yearHeritageCode;
@@ -60,5 +60,5 @@ public class ComponentDetailRequestDTO {
 
     @NotNull(message = "The field is required")
     @Schema(description = "Component detail status: (REGULAR, RISK, BAD)", example = "REGULAR")
-    private StatusType componentStatus;
+    private StatusType statusType;
 }

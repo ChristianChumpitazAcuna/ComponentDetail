@@ -26,11 +26,17 @@ public class ExternalServiceImpl implements ExternalService {
 
     @Override
     public Mono<ComponentProperties> getComponentProperties(ComponentType componentType, String id) {
+        if (componentType == null || id == null) {
+            return Mono.error(new IllegalArgumentException("Component type or id is null"));
+        }
+        String uri = componentUrl + "/" + componentType.toUriParam() + "/" + id;
+        log.info("Getting component properties for {}", uri);
+
         Class<? extends ComponentProperties> targetClass = strategyResolver.getTargetClass(componentType);
 
         return webClient
                 .get()
-                .uri(componentUrl + "/" + componentType.toUriParam() + "/" + id)
+                .uri(uri)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response ->
                         response.bodyToMono(ErrorResponse.class)

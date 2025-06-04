@@ -1,5 +1,6 @@
 package dev.jesus.component_detail_service.domain.out.model;
 
+
 public interface ComponentProperties {
     String getId();
 

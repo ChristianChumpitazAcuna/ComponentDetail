@@ -7,11 +7,14 @@ import dev.jesus.component_detail_service.domain.in.repository.ComponentDetailRe
 import dev.jesus.component_detail_service.domain.in.useCases.ComponentDetailUseCases;
 import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
 import dev.jesus.component_detail_service.domain.out.service.ExternalService;
+import dev.jesus.component_detail_service.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -26,20 +29,26 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
         return validateComponentId(dto)
                 .map(componentProperties -> {
                     ComponentDetail componentDetail = mapper.dtoToEntity(dto);
+                    componentDetail.setCreationTime(LocalDateTime.now());
+                    componentDetail.setUpdateTime(null);
                     componentDetail.setComponentAttributes(componentProperties);
+                    componentDetail.setStatus(true);
                     return componentDetail;
                 })
                 .flatMap(repository::save)
                 .onErrorMap(e -> {
+                    if (e instanceof ItemFoundDisabledException || e instanceof ItemNotFoundException) {
+                        return e;
+                    }
                     log.error("Error saving component detail: {}", e.getMessage());
-                    return new RuntimeException("Error, saving component detail");
+                    return new ItemCreationException("Error, saving component detail");
                 });
     }
 
     @Override
     public Mono<ComponentDetail> updateComponentDetail(String id, ComponentDetailRequestDTO dto) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Component detail not found with id: " + id)))
+                .switchIfEmpty(Mono.error(new ItemNotFoundException("Component detail not found with id: " + id)))
                 .flatMap(existingComponentDetail -> validateComponentId(dto))
                 .map(__ -> {
                     ComponentDetail componentDetail = mapper.dtoToEntity(dto);
@@ -50,7 +59,7 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                 .flatMap(repository::save)
                 .onErrorMap(e -> {
                     log.error("Error updating component detail: {}", e.getMessage());
-                    return new RuntimeException("Error, updating component detail");
+                    return new ItemUpdatedException("Error, updating component detail");
                 });
     }
 
@@ -62,19 +71,19 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
     @Override
     public Mono<Void> changeStatusComponentDetail(String id, Boolean status) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Component detail not found with id: " + id)))
+                .switchIfEmpty(Mono.error(new ItemNotFoundException("Component detail not found with id: " + id)))
                 .flatMap(componentDetail -> {
                     if (componentDetail.getStatus().equals(status)) {
-                        return Mono.error(new RuntimeException("Component detail already in the request status: " + componentDetail.getId()));
+                        return Mono.error(new ItemStatusAlreadySetException("Component detail already in the request status: " + componentDetail.getId()));
                     }
                     return repository.changeStatus(id, status);
                 })
                 .onErrorMap(e -> {
-                    if (e.getCause() instanceof RuntimeException) {
+                    if (e instanceof ItemNotFoundException || e instanceof ItemStatusAlreadySetException) {
                         return e;
                     }
                     log.error("Error chaining componentDetail status: {}", e.getMessage());
-                    return new RuntimeException("Error, chaining componentDetail status");
+                    return new ItemUpdatedException("Error, chaining componentDetail status");
                 });
     }
 
@@ -88,9 +97,20 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
         return externalService.getComponentProperties(
                         dto.getComponentType(), dto.getComponentId()
                 )
+                .flatMap(componentProperties -> {
+                    if (componentProperties.getStatus().equals(false)) {
+                        return Mono.error(new ItemFoundDisabledException(
+                                "Component found with id: " + dto.getComponentId() + " is in inactive state"
+                        ));
+                    }
+                    return Mono.just(componentProperties);
+                })
                 .onErrorMap(e -> {
-                    log.error("Error getting component detail: {}", e.getMessage());
-                    return new RuntimeException("Error, getting component detail");
+                    if (e instanceof ItemFoundDisabledException) {
+                        return e;
+                    }
+                    log.error("Error getting component properties: {}", e.getMessage());
+                    return new ItemNotFoundException("Component not found with id: " + dto.getComponentId());
                 });
     }
 }

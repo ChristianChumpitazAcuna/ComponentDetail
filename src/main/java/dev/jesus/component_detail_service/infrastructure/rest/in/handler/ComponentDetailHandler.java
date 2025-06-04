@@ -3,7 +3,9 @@ package dev.jesus.component_detail_service.infrastructure.rest.in.handler;
 import dev.jesus.component_detail_service.domain.in.model.ComponentDetail;
 import dev.jesus.component_detail_service.domain.in.model.dto.ComponentDetailRequestDTO;
 import dev.jesus.component_detail_service.domain.in.useCases.ComponentDetailUseCases;
+import dev.jesus.component_detail_service.util.validator.CustomValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -14,11 +16,14 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ComponentDetailHandler {
     private final ComponentDetailUseCases useCases;
+    private final CustomValidator validator;
 
     public Mono<ServerResponse> create(ServerRequest request) {
         return request.bodyToMono(ComponentDetailRequestDTO.class)
+                .flatMap(validator::validate)
                 .flatMap(useCases::createComponentDetail)
                 .flatMap(componentDetail -> ServerResponse.status(HttpStatus.CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -29,6 +34,7 @@ public class ComponentDetailHandler {
     public Mono<ServerResponse> update(ServerRequest request) {
         String id = request.pathVariable("id");
         return request.bodyToMono(ComponentDetailRequestDTO.class)
+                .flatMap(validator::validate)
                 .flatMap(dto -> useCases.updateComponentDetail(id, dto))
                 .flatMap(componentDetail -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
