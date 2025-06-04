@@ -23,8 +23,8 @@ public class ComponentDetailEntity {
     private String componentId;
     private ComponentProperties componentAttributes;
     private String heritageCode;
-    private Year yearHeritageCode;
-    private Year year;
+    private Integer yearHeritageCode;
+    private Integer year;
     private String serialNumber;
     private String internalCode;
     private String observation;

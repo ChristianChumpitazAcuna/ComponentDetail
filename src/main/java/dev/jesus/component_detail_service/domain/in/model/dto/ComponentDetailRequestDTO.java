@@ -27,10 +27,10 @@ public class ComponentDetailRequestDTO {
     private String heritageCode;
 
     @Schema(description = "Component detail year heritage code", example = "2022")
-    private Year yearHeritageCode;
+    private Integer yearHeritageCode;
 
     @Schema(description = "Component detail year", example = "2024")
-    private Year year;
+    private Integer year;
 
     @NotNull(message = "The field is required")
     @Pattern(

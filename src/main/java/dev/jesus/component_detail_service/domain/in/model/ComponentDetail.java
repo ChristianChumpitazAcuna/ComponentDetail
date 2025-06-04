@@ -33,10 +33,10 @@ public class ComponentDetail {
     private String heritageCode;
 
     @Schema(description = "Component detail year heritage code")
-    private Year yearHeritageCode;
+    private Integer yearHeritageCode;
 
     @Schema(description = "Component detail year")
-    private Year year;
+    private Integer year;
 
     @Schema(description = "Component detail serial number")
     private String serialNumber;

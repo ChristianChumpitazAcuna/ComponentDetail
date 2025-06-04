@@ -37,7 +37,7 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                 })
                 .flatMap(repository::save)
                 .onErrorMap(e -> {
-                    if (e instanceof ItemFoundDisabledException || e instanceof ItemNotFoundException) {
+                    if (e instanceof ItemFoundDisabledException || e instanceof ExternalServiceException) {
                         return e;
                     }
                     log.error("Error saving component detail: {}", e.getMessage());
@@ -106,11 +106,11 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                     return Mono.just(componentProperties);
                 })
                 .onErrorMap(e -> {
-                    if (e instanceof ItemFoundDisabledException) {
+                    if (e instanceof ItemFoundDisabledException || e instanceof ExternalServiceException) {
                         return e;
                     }
                     log.error("Error getting component properties: {}", e.getMessage());
-                    return new ItemNotFoundException("Component not found with id: " + dto.getComponentId());
+                    return new ExternalServiceException("Component not found with id: " + dto.getComponentId());
                 });
     }
 }
