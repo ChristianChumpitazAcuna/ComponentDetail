@@ -2,7 +2,6 @@ package dev.jesus.component_detail_service.domain.in.useCases;
 
 import dev.jesus.component_detail_service.domain.in.model.ComponentDetail;
 import dev.jesus.component_detail_service.domain.in.model.dto.ComponentDetailRequestDTO;
-import dev.jesus.component_detail_service.domain.out.model.ComponentInfo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

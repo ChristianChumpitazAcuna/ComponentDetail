@@ -5,7 +5,7 @@ import dev.jesus.component_detail_service.domain.in.model.ComponentDetail;
 import dev.jesus.component_detail_service.domain.in.model.dto.ComponentDetailRequestDTO;
 import dev.jesus.component_detail_service.domain.in.repository.ComponentDetailRepository;
 import dev.jesus.component_detail_service.domain.in.useCases.ComponentDetailUseCases;
-import dev.jesus.component_detail_service.domain.out.model.ComponentInfo;
+import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
 import dev.jesus.component_detail_service.domain.out.service.ExternalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,10 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
 
     @Override
     public Mono<ComponentDetail> createComponentDetail(ComponentDetailRequestDTO dto) {
-        return validateComponentId(dto.getComponentId())
-                .map(__ -> {
+        return validateComponentId(dto)
+                .map(componentProperties -> {
                     ComponentDetail componentDetail = mapper.dtoToEntity(dto);
-                    componentDetail.setStatus(true);
+                    componentDetail.setComponentAttributes(componentProperties);
                     return componentDetail;
                 })
                 .flatMap(repository::save)
@@ -40,7 +40,7 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
     public Mono<ComponentDetail> updateComponentDetail(String id, ComponentDetailRequestDTO dto) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new RuntimeException("Component detail not found with id: " + id)))
-                .flatMap(componentDetail -> validateComponentId(componentDetail.getComponentId()))
+                .flatMap(existingComponentDetail -> validateComponentId(dto))
                 .map(__ -> {
                     ComponentDetail componentDetail = mapper.dtoToEntity(dto);
                     componentDetail.setId(id);
@@ -80,21 +80,17 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
 
     @Override
     public Flux<ComponentDetail> findComponentDetailByStatus(Boolean status) {
-        return null;
+        return repository.findByStatus(status);
     }
 
-    private Mono<ComponentInfo> validateComponentId(String id) {
-        return externalService.getComponentInfo(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Component not found for id: " + id)))
-                .flatMap(componentInfo -> {
-                    if (componentInfo.getStatus().equals(false)) {
-                        return Mono.error(new RuntimeException("The component found is in an inactive status"));
-                    }
-                    return Mono.just(componentInfo);
-                })
+
+    private Mono<ComponentProperties> validateComponentId(ComponentDetailRequestDTO dto) {
+        return externalService.getComponentProperties(
+                        dto.getComponentType(), dto.getComponentId()
+                )
                 .onErrorMap(e -> {
-                    log.error("Error getting component: {}", e.getMessage());
-                    return new RuntimeException("Error getting component");
+                    log.error("Error getting component detail: {}", e.getMessage());
+                    return new RuntimeException("Error, getting component detail");
                 });
     }
 }

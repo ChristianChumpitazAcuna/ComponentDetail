@@ -1,1 +1,17 @@
-spring.application.name=component-detail-service
+spring:
+  application:
+    name: component-detail-service
+  cloud:
+    config:
+      import-check:
+        enabled: false
+  data:
+    mongodb:
+      uri: ${DB_URI}
+
+server:
+  port: 8090
+
+external-services:
+  component-service:
+    url: "${component-service-url:http://localhost:8080/component/api/v1}"
