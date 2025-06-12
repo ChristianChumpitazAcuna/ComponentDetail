@@ -7,9 +7,9 @@ import reactor.core.publisher.Mono;
 public interface ComponentDetailRepository {
     Mono<ComponentDetail> save(ComponentDetail componentDetail);
 
-    Mono<ComponentDetail> findById(String id);
+    Mono<ComponentDetail> findById(Long id);
 
-    Mono<Void> changeStatus(String id, Boolean status);
+    Mono<Void> changeStatus(Long id, Boolean status);
 
     Flux<ComponentDetail> findByStatus(Boolean status);
 }

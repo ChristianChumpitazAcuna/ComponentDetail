@@ -3,22 +3,20 @@ package dev.jesus.component_detail_service.infrastructure.persistence.entity;
 import dev.jesus.component_detail_service.domain.in.enums.ComponentType;
 import dev.jesus.component_detail_service.domain.in.enums.StatusType;
 import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.util.List;
 
-@Document(collection = "component_detail")
 @Getter
 @Setter
+@Table(value = "component_detail")
 public class ComponentDetailEntity {
     @Id
-    private String id;
+    private Long id;
     private ComponentType componentType;
     private String componentId;
     private ComponentProperties componentAttributes;

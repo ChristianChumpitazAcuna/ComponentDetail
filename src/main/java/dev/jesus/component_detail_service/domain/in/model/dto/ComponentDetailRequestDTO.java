@@ -59,6 +59,6 @@ public class ComponentDetailRequestDTO {
     ) String> imageUri;
 
     @NotNull(message = "The field is required")
-    @Schema(description = "Component detail status: (REGULAR, RISK, BAD)", example = "REGULAR")
+    @Schema(description = "Component detail status: (REGULAR, RISK, BAD, INOPERATIVE)", example = "REGULAR")
     private StatusType statusType;
 }

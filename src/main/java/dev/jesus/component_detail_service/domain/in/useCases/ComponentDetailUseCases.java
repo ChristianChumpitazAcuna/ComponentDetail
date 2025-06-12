@@ -8,11 +8,11 @@ import reactor.core.publisher.Mono;
 public interface ComponentDetailUseCases {
     Mono<ComponentDetail> createComponentDetail(ComponentDetailRequestDTO dto);
 
-    Mono<ComponentDetail> updateComponentDetail(String id, ComponentDetailRequestDTO dto);
+    Mono<ComponentDetail> updateComponentDetail(Long id, ComponentDetailRequestDTO dto);
 
-    Mono<ComponentDetail> findComponentDetailById(String id);
+    Mono<ComponentDetail> findComponentDetailById(Long id);
 
-    Mono<Void> changeStatusComponentDetail(String id, Boolean status);
+    Mono<Void> changeComponentStatus(Long id, Boolean status);
 
     Flux<ComponentDetail> findComponentDetailByStatus(Boolean status);
 }

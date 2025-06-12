@@ -1,8 +1,8 @@
 package dev.jesus.component_detail_service.exception.handler;
 
-import dev.jesus.component_detail_service.exception.ErrorHandlerStrategy;
+import dev.jesus.component_detail_service.exception.strategy.ErrorHandlerStrategy;
 import dev.jesus.component_detail_service.exception.ItemNotFoundException;
-import dev.jesus.component_detail_service.exception.model.ErrorResponse;
+import dev.jesus.component_detail_service.exception.model.CustomErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +14,9 @@ public class ItemNotFoundExceptionHandler implements ErrorHandlerStrategy {
     }
 
     @Override
-    public ErrorResponse handle(Throwable error) {
+    public CustomErrorResponse handle(Throwable error) {
         ItemNotFoundException ex = (ItemNotFoundException) error;
-        return new ErrorResponse(
+        return new CustomErrorResponse(
                 HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage()
         );
     }

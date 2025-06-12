@@ -5,7 +5,7 @@ import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
 import dev.jesus.component_detail_service.domain.out.service.ExternalService;
 import dev.jesus.component_detail_service.domain.out.strategy.ComponentPropertiesStrategyResolver;
 import dev.jesus.component_detail_service.exception.ExternalServiceException;
-import dev.jesus.component_detail_service.exception.model.ErrorResponse;
+import dev.jesus.component_detail_service.exception.model.CustomErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +30,6 @@ public class ExternalServiceImpl implements ExternalService {
             return Mono.error(new IllegalArgumentException("Component type or id is null"));
         }
         String uri = componentUrl + "/" + componentType.toUriParam() + "/" + id;
-        log.info("Getting component properties for {}", uri);
 
         Class<? extends ComponentProperties> targetClass = strategyResolver.getTargetClass(componentType);
 
@@ -38,13 +37,23 @@ public class ExternalServiceImpl implements ExternalService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response ->
-                        response.bodyToMono(ErrorResponse.class)
-                                .flatMap(errorResponse -> Mono.error(
-                                        new ExternalServiceException(errorResponse.getMessage())
-                                ))
+                .onStatus(HttpStatusCode::isError, clientResponse ->
+                        clientResponse.bodyToMono(CustomErrorResponse.class)
+                                .map(ExternalServiceException::new)
+                                .switchIfEmpty(Mono.error(new ExternalServiceException(
+                                        new CustomErrorResponse(
+                                                clientResponse.statusCode().value(),
+                                                "Unknown Error",
+                                                "No error details provided by the service",
+                                                null
+                                        )
+                                )))
+                                .flatMap(Mono::error)
                 )
                 .bodyToMono(targetClass)
-                .cast(ComponentProperties.class);
+                .cast(ComponentProperties.class)
+                .doOnError(throwable ->
+                        log.error("Error getting data with id {}: {}", id, throwable.getMessage())
+                );
     }
 }

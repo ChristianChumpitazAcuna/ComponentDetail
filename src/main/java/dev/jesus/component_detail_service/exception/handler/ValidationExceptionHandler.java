@@ -1,8 +1,8 @@
 package dev.jesus.component_detail_service.exception.handler;
 
 import dev.jesus.component_detail_service.exception.CustomValidationException;
-import dev.jesus.component_detail_service.exception.ErrorHandlerStrategy;
-import dev.jesus.component_detail_service.exception.model.ErrorResponse;
+import dev.jesus.component_detail_service.exception.strategy.ErrorHandlerStrategy;
+import dev.jesus.component_detail_service.exception.model.CustomErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ public class ValidationExceptionHandler implements ErrorHandlerStrategy {
     }
 
     @Override
-    public ErrorResponse handle(Throwable error) {
+    public CustomErrorResponse handle(Throwable error) {
         CustomValidationException ex = (CustomValidationException) error;
 
         List<Map<String, String>> errors = new ArrayList<>();
@@ -32,7 +32,7 @@ public class ValidationExceptionHandler implements ErrorHandlerStrategy {
             errors.add(errorMap);
         });
 
-        return new ErrorResponse(
+        return new CustomErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "Invalid request parameters",

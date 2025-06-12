@@ -1,8 +1,8 @@
 package dev.jesus.component_detail_service.exception.handler;
 
-import dev.jesus.component_detail_service.exception.ErrorHandlerStrategy;
+import dev.jesus.component_detail_service.exception.strategy.ErrorHandlerStrategy;
 import dev.jesus.component_detail_service.exception.ItemCreationException;
-import dev.jesus.component_detail_service.exception.model.ErrorResponse;
+import dev.jesus.component_detail_service.exception.model.CustomErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +14,9 @@ public class ItemCreationExceptionHandler implements ErrorHandlerStrategy {
     }
 
     @Override
-    public ErrorResponse handle(Throwable error) {
+    public CustomErrorResponse handle(Throwable error) {
         ItemCreationException ex = (ItemCreationException) error;
-        return new ErrorResponse(
+        return new CustomErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 "Creation Failed",
                 ex.getMessage()

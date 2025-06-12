@@ -4,4 +4,5 @@ public enum StatusType {
     REGULAR,
     RISK,
     BAD,
+    INOPERATIVE
 }

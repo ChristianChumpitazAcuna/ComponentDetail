@@ -10,6 +10,7 @@ import dev.jesus.component_detail_service.domain.out.service.ExternalService;
 import dev.jesus.component_detail_service.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,18 +38,20 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                 })
                 .flatMap(repository::save)
                 .onErrorMap(e -> {
-                    if (e instanceof ItemFoundDisabledException || e instanceof ExternalServiceException) {
+                    if (e instanceof IllegalArgumentException || e instanceof ExternalServiceException ||
+                            e instanceof ItemFoundDisabledException
+                    ) {
                         return e;
                     }
-                    log.error("Error saving component detail: {}", e.getMessage());
-                    return new ItemCreationException("Error, saving component detail");
+                    log.error("Error saving component detail: {}", e.getMessage(), e);
+                    return new ItemCreationException();
                 });
     }
 
     @Override
-    public Mono<ComponentDetail> updateComponentDetail(String id, ComponentDetailRequestDTO dto) {
+    public Mono<ComponentDetail> updateComponentDetail(Long id, ComponentDetailRequestDTO dto) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new ItemNotFoundException("Component detail not found with id: " + id)))
+                .switchIfEmpty(Mono.error(new ItemNotFoundException(id)))
                 .flatMap(existingComponentDetail -> validateComponentId(dto))
                 .map(__ -> {
                     ComponentDetail componentDetail = mapper.dtoToEntity(dto);
@@ -58,23 +61,24 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                 })
                 .flatMap(repository::save)
                 .onErrorMap(e -> {
-                    log.error("Error updating component detail: {}", e.getMessage());
-                    return new ItemUpdatedException("Error, updating component detail");
+                    log.error("Error updating component detail with id: {} {}", id, e.getMessage(), e);
+                    return new ItemUpdatedException(id);
                 });
     }
 
     @Override
-    public Mono<ComponentDetail> findComponentDetailById(String id) {
-        return null;
+    public Mono<ComponentDetail> findComponentDetailById(Long id) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new ItemNotFoundException(id)));
     }
 
     @Override
-    public Mono<Void> changeStatusComponentDetail(String id, Boolean status) {
+    public Mono<Void> changeComponentStatus(Long id, Boolean status) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new ItemNotFoundException("Component detail not found with id: " + id)))
+                .switchIfEmpty(Mono.error(new ItemNotFoundException(id)))
                 .flatMap(componentDetail -> {
                     if (componentDetail.getStatus().equals(status)) {
-                        return Mono.error(new ItemStatusAlreadySetException("Component detail already in the request status: " + componentDetail.getId()));
+                        return Mono.error(new ItemStatusAlreadySetException(id, status));
                     }
                     return repository.changeStatus(id, status);
                 })
@@ -82,8 +86,8 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                     if (e instanceof ItemNotFoundException || e instanceof ItemStatusAlreadySetException) {
                         return e;
                     }
-                    log.error("Error chaining componentDetail status: {}", e.getMessage());
-                    return new ItemUpdatedException("Error, chaining componentDetail status");
+                    log.error("Error changing componentDetail status with id: {} {}", id, e.getMessage(), e);
+                    return new ItemChangeStatusException(id, status);
                 });
     }
 
@@ -99,18 +103,19 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                 )
                 .flatMap(componentProperties -> {
                     if (componentProperties.getStatus().equals(false)) {
-                        return Mono.error(new ItemFoundDisabledException(
-                                "Component found with id: " + dto.getComponentId() + " is in inactive state"
-                        ));
+                        return Mono.error(new ItemFoundDisabledException(dto.getComponentId()));
                     }
                     return Mono.just(componentProperties);
                 })
                 .onErrorMap(e -> {
-                    if (e instanceof ItemFoundDisabledException || e instanceof ExternalServiceException) {
+                    if (e instanceof IllegalArgumentException || e instanceof ExternalServiceException ||
+                            e instanceof ItemFoundDisabledException
+                    ) {
                         return e;
                     }
-                    log.error("Error getting component properties: {}", e.getMessage());
-                    return new ExternalServiceException("Component not found with id: " + dto.getComponentId());
+                    var formatId = Long.parseLong(dto.getComponentId());
+                    log.error("Error validating component detail with id: {} {}", dto.getComponentId(), e.getMessage(), e);
+                    return new ItemNotFoundException(formatId);
                 });
     }
 }

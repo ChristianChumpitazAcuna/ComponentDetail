@@ -1,16 +1,14 @@
 package dev.jesus.component_detail_service.exception.handler;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import dev.jesus.component_detail_service.exception.ErrorHandlerStrategy;
-import dev.jesus.component_detail_service.exception.model.ErrorResponse;
+import dev.jesus.component_detail_service.exception.strategy.ErrorHandlerStrategy;
+import dev.jesus.component_detail_service.exception.model.CustomErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebInputException;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -21,14 +19,14 @@ public class EnumDeserializationErrorHandler implements ErrorHandlerStrategy {
     }
 
     @Override
-    public ErrorResponse handle(Throwable error) {
+    public CustomErrorResponse handle(Throwable error) {
         InvalidFormatException ex = findInvalidFormatException(error);
 
         if (ex == null) {
             log.error("No InvalidFormatException found in the error " +
                     "chain for ServerWebInputException: {}", error.getMessage(), error);
 
-            return new ErrorResponse(
+            return new CustomErrorResponse(
                     HttpStatus.BAD_REQUEST.value(),
                     "Invalid input data: unable to process the request",
                     "Invalid Json payload"
@@ -41,7 +39,7 @@ public class EnumDeserializationErrorHandler implements ErrorHandlerStrategy {
 
         String message = getCustomMessage(ex, value);
 
-        return new ErrorResponse(
+        return new CustomErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 message,
                 "Invalid JSON payload"

@@ -1,6 +1,7 @@
 package dev.jesus.component_detail_service.exception;
 
-import dev.jesus.component_detail_service.exception.model.ErrorResponse;
+import dev.jesus.component_detail_service.exception.model.CustomErrorResponse;
+import dev.jesus.component_detail_service.exception.strategy.ErrorHandlerStrategy;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
@@ -49,8 +50,8 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
                     }
 
                     @Override
-                    public ErrorResponse handle(Throwable error) {
-                        return new ErrorResponse(
+                    public CustomErrorResponse handle(Throwable error) {
+                        return new CustomErrorResponse(
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                 "Unexpected error: " + error.getMessage(),
                                 "Internal Server Error"
@@ -58,7 +59,7 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
                     }
                 });
 
-        ErrorResponse response = handler.handle(error);
+        CustomErrorResponse response = handler.handle(error);
 
         return ServerResponse.status(response.getStatus())
                 .contentType(MediaType.APPLICATION_JSON)

@@ -32,7 +32,7 @@ public class ComponentDetailHandler {
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-        String id = request.pathVariable("id");
+        Long id = Long.valueOf(request.pathVariable("id"));
         return request.bodyToMono(ComponentDetailRequestDTO.class)
                 .flatMap(validator::validate)
                 .flatMap(dto -> useCases.updateComponentDetail(id, dto))
@@ -43,7 +43,7 @@ public class ComponentDetailHandler {
     }
 
     public Mono<ServerResponse> getById(ServerRequest request) {
-        String id = request.pathVariable("id");
+        Long id = Long.valueOf(request.pathVariable("id"));
         return useCases.findComponentDetailById(id)
                 .flatMap(componentDetail -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)

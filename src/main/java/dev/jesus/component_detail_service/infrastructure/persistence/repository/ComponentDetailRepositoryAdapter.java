@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class ComponentDetailRepositoryAdapter implements ComponentDetailRepository {
-    private final ComponentDetailReactiveMongoRepository mongoRepository;
+    private final ComponentDetailReactivePostgresRepository mongoRepository;
     private final ComponentDetailMapper mapper;
 
     @Override
@@ -23,13 +23,13 @@ public class ComponentDetailRepositoryAdapter implements ComponentDetailReposito
     }
 
     @Override
-    public Mono<ComponentDetail> findById(String id) {
+    public Mono<ComponentDetail> findById(Long id) {
         return mongoRepository.findById(id)
                 .map(mapper::entityToDomain);
     }
 
     @Override
-    public Mono<Void> changeStatus(String id, Boolean status) {
+    public Mono<Void> changeStatus(Long id, Boolean status) {
         return mongoRepository.changeStatus(id, status);
     }
 

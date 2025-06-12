@@ -1,14 +1,10 @@
 spring:
   application:
     name: component-detail-service
-  cloud:
-    config:
-      import-check:
-        enabled: false
-  data:
-    mongodb:
-      uri: ${DB_URI}
-
+  r2dbc:
+    url: ${URL}
+    username: ${USER_NAME}
+    password: ${PASSWORD}
 server:
   port: 8090
 

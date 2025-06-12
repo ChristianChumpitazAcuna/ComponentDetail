@@ -18,7 +18,7 @@ import java.util.Map;
 @ToString
 public class ComponentDetail {
     @Schema(description = "Unique Component detail identifier")
-    private String id;
+    private Long id;
 
     @Schema(description = "Component type")
     private ComponentType componentType;
@@ -50,7 +50,7 @@ public class ComponentDetail {
     @Schema(description = "Component detail image URL")
     private List<String> imageUri;
 
-    @Schema(description = "Component detail status: (REGULAR, RISK, BAD)")
+    @Schema(description = "Component detail status: (REGULAR, RISK, BAD, INOPERATIVE)")
     private StatusType statusType;
 
     @Schema(description = "Component detail creation time")
