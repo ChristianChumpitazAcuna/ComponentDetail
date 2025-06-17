@@ -5,6 +5,9 @@ spring:
     url: ${URL}
     username: ${USER_NAME}
     password: ${PASSWORD}
+    pool:
+      initial-size: 5
+      max-size: 20
 server:
   port: 8090
 

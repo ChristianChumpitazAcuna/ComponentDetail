@@ -8,13 +8,14 @@ import dev.jesus.component_detail_service.domain.in.useCases.ComponentDetailUseC
 import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
 import dev.jesus.component_detail_service.domain.out.service.ExternalService;
 import dev.jesus.component_detail_service.exception.*;
+import io.r2dbc.postgresql.api.PostgresqlException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.sql.SQLDataException;
 import java.time.LocalDateTime;
 
 @Component
@@ -39,7 +40,7 @@ public class ComponentDetailUseCaseImpl implements ComponentDetailUseCases {
                 .flatMap(repository::save)
                 .onErrorMap(e -> {
                     if (e instanceof IllegalArgumentException || e instanceof ExternalServiceException ||
-                            e instanceof ItemFoundDisabledException
+                            e instanceof ItemFoundDisabledException || e instanceof DataBaseException
                     ) {
                         return e;
                     }

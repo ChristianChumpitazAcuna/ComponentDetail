@@ -2,7 +2,7 @@ package dev.jesus.component_detail_service.infrastructure.persistence.entity;
 
 import dev.jesus.component_detail_service.domain.in.enums.ComponentType;
 import dev.jesus.component_detail_service.domain.in.enums.StatusType;
-import dev.jesus.component_detail_service.domain.out.model.ComponentProperties;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -19,7 +19,7 @@ public class ComponentDetailEntity {
     private Long id;
     private ComponentType componentType;
     private String componentId;
-    private ComponentProperties componentAttributes;
+    private Json componentAttributes;
     private String heritageCode;
     private Integer yearHeritageCode;
     private Integer year;

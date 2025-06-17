@@ -2,15 +2,12 @@ package dev.jesus.component_detail_service.domain.out.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
-@ToString
 public class AccessoryProperties implements ComponentProperties {
-    private String id;
     private String accessoryType;
     private List<String> connectivityType;
     private String brand;

@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BoardProperties implements ComponentProperties {
-    private String id;
     private String brand;
     private String model;
     private String socketType;
